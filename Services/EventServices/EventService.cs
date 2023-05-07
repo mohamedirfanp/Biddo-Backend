@@ -95,7 +95,7 @@ namespace Biddo.Services.EventServices
         }
 
 		// TO GET the List of Event For Current User
-        public IEnumerable<object> ListEventForUser()
+        public IEnumerable<object> ListEventForUser(string filter)
 		{
 			int userId = GetCurrentUserId();
 
@@ -103,7 +103,19 @@ namespace Biddo.Services.EventServices
             var arrayOfObjects = new List<object>();
             try
             {
-				var eventsList = _context.EventModelTable.Where(e => e.UserId ==  userId).ToList();
+				var eventsList = new List<EventModelTable>();
+				if(filter == "all")
+				{
+					eventsList = _context.EventModelTable.Where(e => e.UserId ==  userId).ToList();
+				}
+				else if(filter == "upcoming")
+				{
+					eventsList = _context.EventModelTable.Where(e => e.EventDate >= DateTime.Now).ToList();
+				}
+				else
+				{
+					eventsList = _context.EventModelTable.Where(e => e.EventDate <  DateTime.Now).ToList();
+				}
 				
                 foreach (var e in eventsList)
                 {
@@ -112,14 +124,16 @@ namespace Biddo.Services.EventServices
                     tempObj.Event = e;
                     tempObj.Services = new List<ListEventDto>();
 
-
                     var selectedServices = _context.SelectedServiceTable.Where(service => service.EventId == e.EventId).ToList();
 
                     foreach (var service in selectedServices)
                     {
 						List<BiddingModel> selectedServicesBidList = new List<BiddingModel>();
+						bool ratingStatus = false;
 						var vendor = new object();
 						var vendorList = new List<object>();
+						var vendorRatingList = new List<object>();
+
                         var biddedList = _context.BiddingTable.Where(bid => bid.SelectedServiceName == service.SelectServiceName && bid.EventId == e.EventId).ToList();
                         ListEventDto tempDto = new ListEventDto();
 
@@ -135,7 +149,8 @@ namespace Biddo.Services.EventServices
 												v.VendorName,
 												v.VendorEmail,
 												v.VendorPhoneNumber,
-												v.VendorLocation
+												v.VendorLocation,
+												v.VendorId
 											})
 									  .FirstOrDefault();
 								if(bid.win == true)
@@ -147,20 +162,34 @@ namespace Biddo.Services.EventServices
 									break;
 								}
 
+								var vendorRating = GetAverageStarCount(bid.VendorId, bid.SelectedServiceName);
+
+								vendorRatingList.Add(vendorRating);
 								selectedServicesBidList.Add(bid);
 
 								vendorList.Add(vendor);
 
                             }
 
+							
+
                             //tempDto.vendor = vendor;
 							
                             tempDto.BidList = selectedServicesBidList;
                             tempDto.vendorList = vendorList;
-                            tempObj.Services.Add(tempDto);
+							tempDto.RatingList = vendorRatingList;
+                            
 
                         }
-                    }
+                        if (e.IsCompleted)
+                        {
+                            ratingStatus = _context.RatingTable.Where(rate => rate.EventId == e.EventId && rate.ServiceId == service.SelectedServiceId).Select(rate => rate.isRated).FirstOrDefault();
+
+                        }
+
+						tempDto.ratingStatus = ratingStatus;
+                        tempObj.Services.Add(tempDto);
+					}
 
 
                     arrayOfObjects.Add(tempObj);
@@ -555,5 +584,117 @@ namespace Biddo.Services.EventServices
 		}
 
 
-	}
+		// To Get the List of Event for Vendor
+		public IEnumerable<object> ListEventForVendor(string filter)
+		{
+
+			try
+			{
+
+				var currentUserId = GetCurrentUserId();
+
+                //dynamic eventListsObj = new System.Dynamic.ExpandoObject();
+                var eventListsObj = new List<object>();
+                var eventLists = new List<BiddingModel>();
+
+                if (filter == "all")
+                {
+                    eventLists = _context.BiddingTable.Include(bid => bid.Event).Where(bid => bid.VendorId == currentUserId).ToList();
+                }
+                else
+                {
+                    eventLists = _context.BiddingTable.Include(bid => bid.Event).Where(bid => bid.VendorId == currentUserId && bid.win == true).ToList();
+                }
+
+                var selectedServiceList = new List<object>();
+                var groupedEvents = eventLists.GroupBy(eventItem => eventItem.EventId);
+
+                foreach (var group in groupedEvents)
+                {
+                    var eventId = group.Key;
+                    var events = group.ToList();
+
+					var selectedServicesByEvent = new Dictionary<int,List<SelectedServiceModel>>();
+                    foreach (var eventItem in events)
+                    {
+                        selectedServicesByEvent = events
+							.Select(eventItem => new
+								 {
+						    EventId = eventItem.EventId,
+						     SelectedServices = _context.SelectedServiceTable
+					        .Where(service => service.EventId == eventItem.EventId && service.SelectServiceName == eventItem.SelectedServiceName)
+					          .ToList()
+							  })
+							  .GroupBy(x => x.EventId)
+							 .ToDictionary(x => x.Key, x => x.SelectMany(y => y.SelectedServices).ToList());
+                    }
+                        selectedServiceList.Add(selectedServicesByEvent);
+
+				}
+                    eventListsObj.Add(groupedEvents);
+                eventListsObj.Add(selectedServiceList);
+				return eventListsObj;
+
+
+			}
+			catch (Exception ex)
+			{
+				return Enumerable.Empty<object>().Append(ex.Message);
+			}
+
+		}
+
+		// To Add Rating for Vendor on Selected Service
+		public IActionResult AddRating(RatingDto ratingDto)
+		{
+			try
+			{
+				RatingModel newRating = new RatingModel();
+
+				newRating.EventId = ratingDto.EventId;
+				newRating.VendorId = ratingDto.VendorId;
+				newRating.ServiceId = ratingDto.SelectedServiceId;
+				newRating.ServiceName = ratingDto.ServiceName;
+				newRating.Review = ratingDto.Review;
+				newRating.StarCount = ratingDto.Rating;
+
+				newRating.isRated = true;
+
+				_context.RatingTable.Add(newRating);
+
+				_context.SaveChanges();
+
+				return new OkObjectResult("Successfully Rating Updated");
+
+			}
+			catch (Exception ex)
+			{
+				return new BadRequestObjectResult(ex.Message);
+			}
+		}
+
+        // To Find the Average Rating for a Each Vendor
+        public int GetAverageStarCount(int vendorId, string serviceName)
+        {
+            var ratings = _context.RatingTable
+                            .Where(r => r.VendorId == vendorId && r.ServiceName == serviceName && r.isRated)
+                            .ToList();
+
+			Console.WriteLine("COUNT : " + ratings.Count);
+            if (ratings.Count == 0)
+            {
+                return 0;
+            }
+
+            var sum = ratings.Sum(r => r.StarCount);
+			Console.WriteLine("SUM : " + sum);
+			Thread.Sleep(10000);
+
+            var average = sum / ratings.Count;
+
+            return average;
+        }
+
+
+    }
 }

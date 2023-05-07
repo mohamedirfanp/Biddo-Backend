@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Biddo.Migrations
 {
     [DbContext(typeof(BiddoContext))]
-    partial class BiddoContextModelSnapshot : ModelSnapshot
+    [Migration("20230506112930_starcount added")]
+    partial class starcountadded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -232,46 +234,6 @@ namespace Biddo.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("QueryTable");
-                });
-
-            modelBuilder.Entity("Biddo.Models.RatingModel", b =>
-                {
-                    b.Property<int>("RatingId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RatingId"), 1L, 1);
-
-                    b.Property<int>("EventId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Review")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ServiceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ServiceName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("StarCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VendorId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("isRated")
-                        .HasColumnType("bit");
-
-                    b.HasKey("RatingId");
-
-                    b.HasIndex("EventId");
-
-                    b.HasIndex("ServiceId");
-
-                    b.ToTable("RatingTable");
                 });
 
             modelBuilder.Entity("Biddo.Models.SelectedServiceModel", b =>
@@ -496,25 +458,6 @@ namespace Biddo.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Biddo.Models.RatingModel", b =>
-                {
-                    b.HasOne("Biddo.Models.EventModelTable", "Event")
-                        .WithMany()
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Biddo.Models.SelectedServiceModel", "SelectedService")
-                        .WithMany()
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("SelectedService");
                 });
 
             modelBuilder.Entity("Biddo.Models.TimelineCommentModel", b =>

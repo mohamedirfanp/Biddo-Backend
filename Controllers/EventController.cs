@@ -23,6 +23,8 @@ namespace Biddo.Controllers
 			_context = context;
 			_eventService = eventService;
 		}
+
+		// To Create a new Event 
 		[HttpPost("create"), Authorize(Roles = "User")]
 		public async Task<IActionResult> AddEvent([FromBody] EventDTO eventDTO)
 		{
@@ -37,6 +39,7 @@ namespace Biddo.Controllers
 			return Ok(response);
 		}
 
+		// To Get Provided Services
 		[HttpGet("services")]
 		public async Task<ActionResult<IEnumerable<ProvidedServiceModel>>> GetServices()
 		{
@@ -50,6 +53,7 @@ namespace Biddo.Controllers
 			return Ok(response);
 		}
 
+		// To Get the List of auction for Vendor
 		[HttpGet("auctionEvents"), Authorize(Roles = "Vendor")]
 		public async Task<ActionResult<IEnumerable<object>>> ListEvents()
 		{
@@ -57,11 +61,12 @@ namespace Biddo.Controllers
 			return Ok(response);
 		}
 
-		[HttpGet("user/ListEvents"),Authorize(Roles = "User")]
 
-		public async Task<ActionResult<IEnumerable<object>>> ListEventsForUser()
+		// To Get the Event List Based on the filter for User
+		[HttpGet("user/ListEvents/{filter}"),Authorize(Roles = "User")]
+		public async Task<ActionResult<IEnumerable<object>>> ListEventsForUser(string filter)
 		{
-			var response = this._eventService.ListEventForUser();
+			var response = this._eventService.ListEventForUser(filter);
 
 			if (response is BadRequestObjectResult badRequest)
 			{
@@ -71,6 +76,21 @@ namespace Biddo.Controllers
 			return Ok(response);
 		}
 
+		// To Get the Event List Based on the filter for vendor
+		[HttpGet("vendor/ListEvent/{filter}"), Authorize(Roles = "Vendor")]
+		public async Task<ActionResult<IEnumerable<object>>> ListEventsForVendor(string filter)
+		{
+			var response = this._eventService.ListEventForVendor(filter);
+
+            if (response is BadRequestObjectResult badRequest)
+            {
+                return BadRequest(badRequest.Value);
+            }
+
+            return Ok(response);
+        }
+
+		// To place a bid for a auction on Vendor
 		[HttpPost("vendor/placeBid"), Authorize(Roles = "Vendor")]
 		public async Task<IActionResult> AddBid([FromBody] BidDto Bid)
 		{
@@ -87,7 +107,8 @@ namespace Biddo.Controllers
 			return Ok(response);
 		}
 
-		[HttpPost("vendor/updateBid"), Authorize(Roles = "Vendor")]
+        // To update a bid for a auction on Vendor
+        [HttpPost("vendor/updateBid"), Authorize(Roles = "Vendor")]
 		public async Task<IActionResult> EditBid([FromBody]BidDto Bid)
 		{
 			var response = this._eventService.UpdateBid(Bid.BidId, Bid.Bid);
@@ -99,6 +120,8 @@ namespace Biddo.Controllers
 			return Ok(response);
 		}
 
+
+		// To update all the over Event automatically
 		[HttpGet("update/timeComplete")]
 		public async Task<IActionResult> UpdateTimeComplete()
 		{
@@ -111,6 +134,7 @@ namespace Biddo.Controllers
 			return Ok(response);
 		}
 
+		// To update the selected vendor for a service
 		[HttpPost("update/winner"), Authorize(Roles = "User")]
 		public async Task<IActionResult> UpdateWinnerForServices([FromBody] AuctionDto auction)
 		{
@@ -123,10 +147,24 @@ namespace Biddo.Controllers
             return Ok(response);
         }
 
+		// To Reschedule a Auction on User Request
 		[HttpPost("reschedule/auction"), Authorize(Roles = "User")]
 		public async Task<IActionResult> RescheduleAuction(RescheduleAuctionDto rescheduleRequest)
 		{
 			var response = this._eventService.RescheduleAuction(rescheduleRequest);
+            if (response is BadRequestObjectResult badRequest)
+            {
+                return BadRequest(badRequest.Value);
+            }
+
+            return Ok(response);
+        }
+
+		// To add rating for a Vendor on Service
+		[HttpPost("add/rating"), Authorize(Roles = "User")]
+		public async Task<IActionResult> AddRating(RatingDto newRating)
+		{
+            var response = this._eventService.AddRating(newRating);
             if (response is BadRequestObjectResult badRequest)
             {
                 return BadRequest(badRequest.Value);

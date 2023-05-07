@@ -17,7 +17,7 @@ namespace Biddo.Services.EventServices
         IEnumerable<object> AuctionEvents();
 
         // To Get the List of Events for current User
-        IEnumerable<object> ListEventForUser();
+        IEnumerable<object> ListEventForUser(string filter);
 
         // To Place Bid for a Service (Vendor)
         IActionResult PlaceBid(BiddingModel bid);
@@ -35,6 +35,12 @@ namespace Biddo.Services.EventServices
 
         // To Reschedule a Auction (User)
         IActionResult RescheduleAuction(RescheduleAuctionDto rescheduleRequest);
+
+        // To Get the List of Event for current Vendor
+        IEnumerable<object> ListEventForVendor(string filter);
+
+        // To Add Rating for Vendor on a Service
+        IActionResult AddRating(RatingDto rating);
 
     }
 }

@@ -14,6 +14,8 @@ namespace Biddo.Models
         [System.ComponentModel.DataAnnotations.Required]
         public string Review { get; set; }
 
+        [System.ComponentModel.DataAnnotations.Required]
+        public int StarCount { get; set; }
 
         public int EventId { get; set; }
         
@@ -21,6 +23,10 @@ namespace Biddo.Models
         public int VendorId { get; set; }
 
         public int ServiceId { get; set; }
+
+        public string ServiceName { get; set; }
+
+        public bool isRated { get; set; }
 
 
         [ForeignKey(nameof(ServiceId))]

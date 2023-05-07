@@ -31,4 +31,6 @@ using Biddo.Models;
 
         public DbSet<TimelineCommentModel> TimelineCommentModel { get; set; } = default!;
 
+        public DbSet<RatingModel> RatingTable { get; set; } = default!;
+
 }
