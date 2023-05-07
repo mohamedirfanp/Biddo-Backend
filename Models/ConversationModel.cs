@@ -13,8 +13,6 @@ namespace Biddo.Models
 
         public int VendorId { get; set; }
 
-        public int AdminId { get; set; } = 0;
-
         public bool IsBlocked { get; set; }
 
         [ForeignKey(nameof(UserId))]

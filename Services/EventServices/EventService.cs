@@ -110,11 +110,11 @@ namespace Biddo.Services.EventServices
 				}
 				else if(filter == "upcoming")
 				{
-					eventsList = _context.EventModelTable.Where(e => e.EventDate >= DateTime.Now).ToList();
+					eventsList = _context.EventModelTable.Where(e => e.EventDate >= DateTime.Now && e.UserId == userId).ToList();
 				}
 				else
 				{
-					eventsList = _context.EventModelTable.Where(e => e.EventDate <  DateTime.Now).ToList();
+					eventsList = _context.EventModelTable.Where(e => e.EventDate <  DateTime.Now && e.UserId == userId).ToList();
 				}
 				
                 foreach (var e in eventsList)
@@ -156,6 +156,7 @@ namespace Biddo.Services.EventServices
 								if(bid.win == true)
 								{
 									vendorList.Clear();
+									vendorRatingList.Clear();
 									vendorList.Add(vendor);
 									selectedServicesBidList.Clear();
 									selectedServicesBidList.Add(bid);

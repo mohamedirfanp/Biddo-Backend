@@ -19,10 +19,10 @@ namespace Biddo.Models
 
         public int ConversationId { get; set; }
 
-        [ForeignKey(nameof(ConversationId))]
-        public virtual ConversationModel Conversation { get; set; }
+        public int QueryId { get; set; }
 
         public string FromRole { get; set; }
+
 
 
 

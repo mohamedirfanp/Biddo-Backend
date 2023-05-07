@@ -181,7 +181,17 @@ namespace Biddo.Services.AuthServices
 					return new BadRequestObjectResult($"Invalid Password");
 				}
 
-				string jwtToken = CreateToken(user.UserId.ToString(), "User");
+				string jwtToken = "";
+
+				if(!user.isAdmin)
+				{
+					jwtToken = CreateToken(user.UserId.ToString(), "User");
+
+				}
+				else
+				{
+					jwtToken = CreateToken(user.UserId.ToString(), "Admin");
+				}
 
 				return new OkObjectResult(jwtToken);
 			}

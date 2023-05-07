@@ -23,18 +23,8 @@ namespace Biddo.Models
 
         public DateTime CreatedAt { get; set; }
 
-        public int UserId { get; set; }
+        public int CreatedId { get; set; }
 
-        public string Status { get; set; }
-
-
-        //public int ConversationId { get; set; }
-
-        //[ForeignKey(nameof(ConversationId))]
-        //public virtual ConversationModel Conversation { get; set; } 
-
-        [ForeignKey(nameof(UserId))]
-        public virtual UserModel User { get; set; }
-
+        public bool Status { get; set; }
     }
 }

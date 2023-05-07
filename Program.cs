@@ -2,6 +2,8 @@ global using Biddo.Services.AuthServices;
 global using Biddo.Services.EventServices;
 global using Biddo.Services.MailServices;
 global using Biddo.Services.ChatServices;
+global using Biddo.Services.HelpServices;
+global using Biddo.Services.AdminServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -43,6 +45,8 @@ namespace Biddo
             builder.Services.AddScoped<IEventService, EventService>();
             builder.Services.AddScoped<IMailService, MailService>();
             builder.Services.AddScoped<IChatService, ChatService>();
+            builder.Services.AddScoped<IHelpService, HelpService>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
 
             builder.Services.AddHttpContextAccessor();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

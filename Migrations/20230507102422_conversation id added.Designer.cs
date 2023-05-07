@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Biddo.Migrations
 {
     [DbContext(typeof(BiddoContext))]
-    partial class BiddoContextModelSnapshot : ModelSnapshot
+    [Migration("20230507102422_conversation id added")]
+    partial class conversationidadded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -93,6 +95,9 @@ namespace Biddo.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConversationId"), 1L, 1);
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsBlocked")
                         .HasColumnType("bit");
@@ -200,11 +205,11 @@ namespace Biddo.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QueryId"), 1L, 1);
 
+                    b.Property<int>("ConversationId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedId")
-                        .HasColumnType("int");
 
                     b.Property<string>("QueryDesciption")
                         .IsRequired()
@@ -223,7 +228,12 @@ namespace Biddo.Migrations
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("QueryId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("QueryTable");
                 });
@@ -315,9 +325,6 @@ namespace Biddo.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("QueryId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("TimeStamp")
                         .HasColumnType("datetime2");
 
@@ -326,6 +333,8 @@ namespace Biddo.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("TimelineCommentId");
+
+                    b.HasIndex("ConversationId");
 
                     b.ToTable("TimelineCommentModel");
                 });
@@ -485,6 +494,17 @@ namespace Biddo.Migrations
                     b.Navigation("Vendor");
                 });
 
+            modelBuilder.Entity("Biddo.Models.QueryModel", b =>
+                {
+                    b.HasOne("Biddo.Models.UserModel", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Biddo.Models.RatingModel", b =>
                 {
                     b.HasOne("Biddo.Models.EventModelTable", "Event")
@@ -502,6 +522,17 @@ namespace Biddo.Migrations
                     b.Navigation("Event");
 
                     b.Navigation("SelectedService");
+                });
+
+            modelBuilder.Entity("Biddo.Models.TimelineCommentModel", b =>
+                {
+                    b.HasOne("Biddo.Models.ConversationModel", "Conversation")
+                        .WithMany()
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Conversation");
                 });
 #pragma warning restore 612, 618
         }

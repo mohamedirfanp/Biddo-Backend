@@ -19,6 +19,12 @@ namespace Biddo.Services.ChatServices
         // To Add Chat for a Conversation
         IActionResult AddChat(ChatDto chat);
 
+        //To Get the Timeline Comment for Tickets
+        IEnumerable<TimelineCommentModel> GetChatForTickets(int ticketId);
+
+        // To Add Chat for a Ticket
+        IActionResult AddChatForTicket(ChatTicketDto chatTicket);
+
 
 
     }

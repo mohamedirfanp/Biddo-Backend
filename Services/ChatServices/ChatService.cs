@@ -33,7 +33,7 @@ namespace Biddo.Services.ChatServices
             {
                 var requestId = GetCurrentUserId();
 
-                var conversationsList = _context.ConvensationTable.Include(conv => conv.User).Include(conv => conv.Vendor).Where(conv => conv.UserId == requestId || conv.VendorId == requestId).Select(conv => new
+                var conversationsList = _context.ConvensationTable.Include(conv => conv.User).Include(conv => conv.Vendor).Where(conv => (conv.UserId == requestId || conv.VendorId == requestId)).Select(conv => new
                 {
                     conv.ConversationId,
                     conv.UserId,
@@ -119,7 +119,53 @@ namespace Biddo.Services.ChatServices
             }
         }
 
+        // To Get the Message to Tickets
+        public IEnumerable<TimelineCommentModel> GetChatForTickets(int ticketId)
+        {
+            try
+            {
+                Console.WriteLine("Ticket Id : " +ticketId);
+                var chatsList = _context.TimelineCommentModel.Where(conv => conv.QueryId == ticketId).ToList();
 
+                return chatsList;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return Enumerable.Empty<TimelineCommentModel>();
+            }
+        }
+
+        // To Add a Message For Ticket
+        public IActionResult AddChatForTicket(ChatTicketDto chat)
+        {
+            try
+            {
+
+                var currentId = GetCurrentUserId();
+                var currentRole = this._httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Role);
+
+                TimelineCommentModel newChat = new TimelineCommentModel();
+
+                newChat.From = currentId;
+                newChat.message = chat.Message;
+                newChat.QueryId = chat.TicketId;
+                newChat.FromRole = currentRole;
+                newChat.TimeStamp = DateTime.Now;
+
+                // TODO : Need to check for Permission to chat
+
+                _context.TimelineCommentModel.Add(newChat);
+                _context.SaveChanges();
+
+                return new OkObjectResult("Success");
+
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex.Message);
+            }
+        }
 
     }
 }

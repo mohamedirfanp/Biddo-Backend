@@ -114,7 +114,6 @@ namespace Biddo.Controllers
 
         // Update Profile for Vendor
         [HttpPost("vendor/profile"), Authorize(Roles = "Vendor")]
-
         public async Task<IActionResult> UpdateProfileForVendor([FromBody] VendorSignDto request)
         {
             Console.WriteLine("HERE : " + request.PhoneNumber);
@@ -128,6 +127,6 @@ namespace Biddo.Controllers
         }
 
 
-
+        
     }
 }

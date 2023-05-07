@@ -25,6 +25,8 @@ namespace Biddo.Models
         public byte[] PasswordHash { get; set; }
 
         public byte[] PasswordSalt { get; set; }
+
+        public bool isAdmin { get; set; } = false;
    
     }
 }

@@ -38,12 +38,36 @@ namespace Biddo.Controllers
             return response;
         }
 
+        // To GET chats based on the ticketId
+        [HttpGet("get/chat/tickets/{ticketId}"), Authorize]
+        public IEnumerable<TimelineCommentModel> GetChatsForTicket(int ticketId)
+        {
+            var response = this._chatService.GetChatForTickets(ticketId);
+
+            return response;
+        }
+
         // Post a message on the Conversation
 
         [HttpPost("send/message"), Authorize]
         public IActionResult SendMessage([FromBody] ChatDto chat)
         {
             var response = _chatService.AddChat(chat);
+
+            if (response is BadRequestObjectResult badRequest)
+            {
+                return BadRequest(badRequest.Value);
+            }
+
+            return Ok(response);
+        }
+
+        // Post a message on the Ticket
+
+        [HttpPost("send/ticket/message"), Authorize]
+        public IActionResult SendMessageForTicket([FromBody] ChatTicketDto chat)
+        {
+            var response = _chatService.AddChatForTicket(chat);
 
             if (response is BadRequestObjectResult badRequest)
             {
