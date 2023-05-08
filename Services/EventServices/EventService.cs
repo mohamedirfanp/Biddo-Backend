@@ -487,7 +487,7 @@ namespace Biddo.Services.EventServices
                 {
 					var vendorList = _context.ProvidedServiceTable.Include(p => p.Vendor).Select(p=> new { p.Vendor.VendorEmail, p.ServiceName }).Where(p => p.ServiceName == service.SelectServiceName).ToList();
 
-					string body = $"Event Name : {eventModel.EventName}<br>" + $"Event Date & Time : {eventModel.EventDate.ToString().Split('T')[0]} & {eventModel.EventTime}<br>" + $"Event Venue : {eventModel.EventAddress}<br>" + $"Requested Service Name : {service.SelectServiceName}<br>" + $"For Further Info, login to the site.<br>" + 
+					string body = $"Event Name : {eventModel.EventName}<br>" + $"Event Date & Time : {eventModel.EventDate.ToString().Split(' ')[0]} & {eventModel.EventTime}<br>" + $"Event Venue : {eventModel.EventAddress}<br>" + $"Requested Service Name : {service.SelectServiceName}<br>" + $"For Further Info, login to the site.<br>" + 
 						$"<h3 style='color : red;'>The auction over at {eventModel.AuctionTimeLimit}.So, please login before the time and placed your bid in Auction Section<h3><br>" +
 						$"Regards<br>" +
 						$"Biddo";
@@ -681,15 +681,12 @@ namespace Biddo.Services.EventServices
                             .Where(r => r.VendorId == vendorId && r.ServiceName == serviceName && r.isRated)
                             .ToList();
 
-			Console.WriteLine("COUNT : " + ratings.Count);
             if (ratings.Count == 0)
             {
                 return 0;
             }
 
             var sum = ratings.Sum(r => r.StarCount);
-			Console.WriteLine("SUM : " + sum);
-			Thread.Sleep(10000);
 
             var average = sum / ratings.Count;
 
