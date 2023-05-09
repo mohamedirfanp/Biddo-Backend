@@ -44,7 +44,6 @@ namespace Biddo.Services.MailServices
                     //smtp.Connect("smtp.gmail.com", 587, false);
 
                     //// Authenticate with the Gmail account credentials
-                    //smtp.Authenticate("mohamedirfanp3@gmail.com", "yrbnfeosccjeevrt");
 
 
                     // Configuration FAKE SMTP
